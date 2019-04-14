@@ -1,3 +1,9 @@
+/*
+Implement all the functions of a dictionary (ADT) OR directory of phonebook using hashing.
+Data: Set of (key, value) pairs, Keys are mapped to values, Keys must be comparable, Keys must be unique
+Standard Operations: Insert(key, value), Find(key), Delete(key) (use linear probing with replacement and without replacement)
+*/
+
 //============================================================================
 // Name        : hash.cpp
 // Author      : Omkar Mankar
