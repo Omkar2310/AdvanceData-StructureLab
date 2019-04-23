@@ -9,327 +9,310 @@ Create a Dictionary by using Height Balanced tree,(AVL TREE)
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
 //============================================================================
-
-
-#include<iostream>
+#include <iostream>
 #include<string.h>
-using namespace std; 
+using namespace std;
 class node
 {
 public:
+	char word[10],mean[10];
 	node *right,*left;
-	string w,m;
-	node(string x,string y)
+	node(char a[],char b[])
 	{
-		w=x;
-		m=y;
+		strcpy(word,a);
+		strcpy(mean,b); // @suppress("Function cannot be resolved")
 		right=left=NULL;
-	}
-	node()
-	{
-		right=left=NULL;
-		w=m=" ";
 	}
 };
-class dictionary
+
+class avltree
 {
 	node *root;
 public:
-	dictionary()
+	avltree()
 	{
 		root=NULL;
 	}
-	node *LL(node *t)
+
+	int height(node *t)
 	{
-		node *p=t->left;
-		node *y=p->right;
-		t->left=y;
-		p->right=t;
-		return p;
-	}
-	node *RR(node *t)
-	{
-		node *p=t->right;
-		node *y=p->left;
-		t->right=y;
-		p->left=t;
-		return p;
-	}
-	node *LR(node *t)
-	{
-		node *p=t->left;
-		node *y=p->right;
-		p->right=y->left;
-		y->left=p;
-		y->right=t;
-		return p;
-	}
-	node *RL(node *t)
-	{
-		node *p=t->right;
-		node *y=p->left;
-		p->left=y->right;
-		y->right=p;
-		y->left=t;
-		return p;
-	}
-	node* insert(node *root,string x,string y)
-	{
-		node *t=root;
 		if(t==NULL)
 		{
-			return new node(x,y);
+			return 0;
 		}
-		if(x<t->w)
+		if(t->left==NULL && t->right==NULL)
 		{
-			t->left=insert(t->left,x,y);
-			if(bal_fact(t)==2)
-			{
-				if(x<t->left->w)
-				{//add left
-					t=LL(t);
-				}
-				else
-				{//add right of left
-					t=LR(t);
-				}
-			}
-			return t;
+			return 0;
 		}
-		if(x>t->w)
+		int a,b;
+		a=height(t->left);
+		b=height(t->right);
+		if(a<b)
 		{
-			t->right=insert(t->right,x,y);
-			if(bal_fact(t)==2)
-			{
-				if(x<t->right->w)
-				{
-					t=RL(t);
-				}
-				else
-				{
-					t=RR(t);
-				}
-			}
-		return t;
+			return b+1;
+		}
+		return a+1;
+	}
+
+	int balfact(node *t)
+	{
+		int a,b;
+
+		a=height(t->left);
+		b=height(t->right);
+		if(t->left!=NULL)
+		{
+			a++;
+		}
+		if(t->right!=NULL)
+		{
+			b++;
+		}
+		return (a-b);
+	}
+
+	node* ll(node *t)
+	{
+		node *y=t->left;
+		t->left=y->right;
+		y->right=t;
+		return y;
+	}
+
+	node* rr(node *t)
+	{
+		node *y=t->right;
+		t->right=y->left;
+		y->left=t;
+		return y;
+	}
+
+	node* lr(node *t)
+	{
+		node *y=t->left;
+		node *p=y->right;
+		y->right=p->left;
+		p->left=y;
+		t->left=p;
+		return ll(t);
+	}
+
+	node* rl(node *t)
+	{
+		node *y=t->right;
+		node *p=y->left;
+		y->left=p->right;
+		p->right=y;
+		t->right=p;
+		return rr(t);
+	}
+
+	void insert(char a[],char b[])
+	{
+		root=in(root,a,b);
+	}
+
+	node* in(node *t,char a[],char b[])
+	{
+		if(t==NULL)
+		{
+			return new node(a,b);
 		}
 
+		if(strcmp(t->word,a)>0)
+		{
+			//a is small
+			t->left=in(t->left,a,b);
+			if(balfact(t)==2)
+			{
+				if(strcmp(t->left->word,a)>0)
+				{
+					t=ll(t);
+					return t;
+				}
+				else
+				{
+					t=lr(t);
+					return t;
+				}
+			}
+		}
+		else
+		{
+		if(strcmp(t->word,a)<0)
+		{
+			//a is small
+			t->right=in(t->right,a,b);
+			if(balfact(t)==-2)
+			{
+				if(strcmp(t->right->word,a)>0)
+				{
+					t=rl(t);
+					return t;
+				}
+				else
+				{
+					t=rr(t);
+					return t;
+				}
+			}
+		}
+		else
+		{
+			cout<<"Data already present\n";
+		}
+		}
+		return t;
 	}
-	void insertdata()
-	{
-		string m,n;
-		cout<<"ENter word\n";
-		cin>>m;
-		cout<<"Enter meaning\n";
-		cin>>n;
-		root=insert(root,m,n);
+	void in(){
+		inorder(root);
 	}
-	void inorder()
-	{
-		in_rec(root);
-	}
-	void in_rec(node *t)
+	void inorder(node *t)
 	{
 		if(t!=NULL)
 		{
-			in_rec(t->left);
-			cout<<t->w<<" "<<t->m<<" "<<bal_fact1(t)<<height(t)<<endl;
-			in_rec(t->right);
+			inorder(t->left);
+			cout<<t->word<<" : "<<t->mean<<" "<<balfact(t)<<endl;
+			inorder(t->right);
 		}
 	}
-	int height(node *t)
+
+	void del(char a[])
 	{
-		int lh,rh;
+		root=del_rec(root,a);
+	}
+
+	node* del_rec(node *t,char a[])
+	{
 		if(t==NULL)
 		{
-			return 0;
-		}
-		if(t->left==NULL)
-		{
-			lh=0;
-		}
-		else
-		{
-			lh=1+bal_fact(t->left);
-		}
-		if(t->right==NULL)
-		{
-			rh=0;
-		}
-		else
-		{
-			rh=1+bal_fact(t->right);
-		}
-		return (lh>rh?lh:rh);
-	}
-	int bal_fact(node *t)
-	{
-		int lh,rh;
-		if(t==NULL)
-		{
-			return 0;
-		}
-		if(t->left==NULL)
-		{
-			lh=0;
-		}
-		else
-		{
-			lh=1+bal_fact(t->left);
-		}
-		if(t->right==NULL)
-		{
-			rh=0;
-		}
-		else
-		{
-			rh=1+bal_fact(t->right);
-		}
-		if(lh<rh)
-		{
-			return (-1)*(lh-rh);
-		}
-		else
-		return (lh-rh);
-	}
-	int bal_fact1(node *t)
-	{
-		int lh,rh;
-		if(t==NULL)
-		{
-			return 0;
-		}
-		if(t->left==NULL)
-		{
-			lh=0;
-		}
-		else
-		{
-			lh=1+bal_fact(t->left);
-		}
-		if(t->right==NULL)
-		{
-			rh=0;
-		}
-		else
-		{
-			rh=1+bal_fact(t->right);
-		}
-		return (lh-rh);
-	}
-	void del()
-	{
-		string m;
-		cout<<"ENter key\n";
-		cin>>m;
-		root=del1(root,m);
-	}
-	node* del1(node *root,string x)
-	{
-		node *t=root;
-		if(x<t->w)
-		{
-			t->left=del1(t->left,x);
+			cout<<"data not found\n";
 			return t;
-			if(bal_fact1(t)==-2)
+		}
+			if(strcmp(t->word,a)>0)
 			{
-				if(bal_fact1(t->right)<=0)
+				//a is small so we need to balance rr and rl condition
+				//rl is used if r->right bal is > than 0 else rr
+				t->left=del_rec(t->left,a);
+				if(balfact(t)==-2)
 				{
-					t=RR(t);
+					if(balfact(t->right)>0)
+					{
+						//do rl;
+						t=rl(t);
+						return t;
+					}
+					else
+					{
+						t=rr(t);
+						return t;
+					}
 				}
-				else
-				{
-					t=RL(t);
-				}
-			}
-			return t;
-		}
-		else if(x>t->w)
-		{
-			t->right=del1(t->right,x);
-			return t;
-			if(bal_fact1(t)==2)
-			{
-				if(bal_fact1(t->left)>=0)
-				{
-					t=LL(t);
-				}
-				else
-				{
-					t=LR(t);
-				}
-			}
-			return t;
-		}
-		//data found
-		if(t->right==NULL && t->left==NULL)
-		{
-			delete t;
-			return NULL;
-		}
-		if(t->right==NULL)
-		{
-			node *p=t->right;
-			delete t;
-			return p;
-		}
-		if(t->left==NULL)
-		{
-			node *p=t->left;
-			delete t;
-			return p;
-		}
-		//else two children
-		node *temp;
-		temp=findmin(t->right);
-		t->w=temp->w;
-		t->m=temp->m;
-		t->right=del1(t->right,temp->w);
-		if(bal_fact1(t)==2)
-		{
-			if(bal_fact1(t->left)>=0)
-			{
-				t=LL(t);
 			}
 			else
 			{
-				t=LR(t);
+				if(strcmp(t->word,a)<0)
+				{
+					//right delete do lr and ll
+					t->right=del_rec(t->right,a);
+					if(balfact(t)==2)
+					{
+						if(balfact(t->left)>0)
+						{
+							t=ll(t);
+							return t;
+						}
+						else
+						{
+							t=lr(t);
+							return t;
+						}
+					}
+				}
+				else
+				{
+					//data found to delete
+					if(t->left==NULL && t->right==NULL)
+					{
+						delete t;
+						return NULL;
+					}
+					if(t->left==NULL)
+					{
+						node *p=t->right;
+						delete t;
+						return p;
+					}
+					if(t->right==NULL)
+					{
+						node *p=t->left;
+						delete t;
+						return p;
+					}
+
+					node *temp=findmin(t->right);
+					strcpy(t->word,temp->word);
+					strcpy(t->mean,temp->mean);
+					t->right=del_rec(t->right,temp->word);
+					//data delete from right we do ll and lr
+					if(balfact(t)==2)
+					{
+					if(balfact(t->left)>0)
+					{
+						t=ll(t);
+						return t;
+					}
+					else
+					{
+						t=lr(t);
+						return t;
+					}
+					}
+					return t;
+				}
 			}
-		}
 		return t;
 	}
-	node *findmin(node *t)
+
+	node* findmin(node *t)
 	{
-		if(t==NULL)
-		{
-			return NULL;
-		}
-		while(t->left!=NULL)
+		if(t->left!=NULL)
 		{
 			t=t->left;
 		}
 		return t;
 	}
 };
+
 int main()
 {
 	int k;
-	dictionary d;
+	char a[10],b[10];
+	avltree t;
 	do
 	{
-		cout<<"1.INSERT\n2.DISPLAY\n3.DELETE\nEnter ur choice\n";
+		cout<<"1.create\n2.display\n";
 		cin>>k;
 		switch(k)
 		{
-			case 1:
-				d.insertdata();
-				break;
-			case 2:
-				d.inorder();
-				break;
-			case 3:
-				d.del();
-				break;
-		}
+		case 1:
+			cout<<"Enter word and meaning\n";
+			cin.ignore();
+			cin.getline(a,9);
+			cin.getline(b,9);
+			t.insert(a,b);
+			break;
+		case 2:
+			t.in();
+			break;
+		case 3:
+			cout<<"Enter word \n";
+			cin.ignore();
+			cin.getline(a,9);
+			t.del(a);
+			break;
 
+		}
 	}while(k!=0);
+	return 0;
 }
